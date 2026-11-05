@@ -1,8 +1,12 @@
 import { supabase, isSupabaseConfigured, localDB } from './supabase';
+import { MENU_CATEGORIES, getItemCategory } from '../constants/categories';
 import { 
   getOrders as ajaxGetOrders, 
   getMenuItems as ajaxGetMenuItems, 
   getCategories as ajaxGetCategories,
+  createCategory as ajaxCreateCategory,
+  updateCategory as ajaxUpdateCategory,
+  deleteCategory as ajaxDeleteCategory,
   createMenuItem as ajaxCreateMenuItem,
   updateMenuItem as ajaxUpdateMenuItem,
   deleteMenuItem as ajaxDeleteMenuItem,
@@ -12,23 +16,76 @@ import {
 
 export const menuService = {
   getCategories: async () => {
-    try {
-      const data = await ajaxGetCategories();
-      if (data && Array.isArray(data) && data.length > 0) return data;
-    } catch (e) {}
-    return localDB.getCategories();
+    let list = localDB.getCategories();
+    if (!list || list.length === 0) {
+      list = MENU_CATEGORIES;
+      localDB.saveCategories(list);
+    }
+    return list;
   },
-  saveCategory: async (cat) => localDB.saveCategory(cat),
-  deleteCategory: async (id) => localDB.deleteCategory(id),
+  saveCategory: async (cat, oldCatName = null) => {
+    const isNew = !cat.id || String(cat.id).startsWith('cat-new');
+    const assignedId = cat.id || `cat-${Date.now()}`;
+    const payload = {
+      ...cat,
+      id: assignedId
+    };
+    const saved = localDB.saveCategory(payload);
+
+    // If the category was renamed, migrate all dishes belonging to oldCatName
+    if (oldCatName && oldCatName !== cat.name) {
+      const items = localDB.getMenuItems();
+      let changed = false;
+      const updatedItems = items.map(it => {
+        if (it.category_name === oldCatName || it.category_id === oldCatName) {
+          changed = true;
+          return { ...it, category_name: cat.name, category_id: cat.name };
+        }
+        return it;
+      });
+      if (changed) {
+        localDB.saveMenuItems(updatedItems);
+      }
+    }
+
+    try {
+      if (isNew) {
+        await ajaxCreateCategory(payload);
+      } else {
+        await ajaxUpdateCategory(assignedId, payload);
+      }
+    } catch (e) {
+      console.warn('saveCategory remote sync:', e?.message);
+    }
+    return saved;
+  },
+  deleteCategory: async (id) => {
+    const list = localDB.deleteCategory(id);
+    try {
+      await ajaxDeleteCategory(id);
+    } catch (e) {}
+    return list;
+  },
 
   getMenuItems: async () => {
+    let list = [];
     try {
       const data = await ajaxGetMenuItems();
       if (data && Array.isArray(data) && data.length > 0) {
-        return data;
+        list = data;
       }
     } catch (e) {}
-    return localDB.getMenuItems();
+    if (!list || list.length === 0) {
+      list = localDB.getMenuItems() || [];
+    }
+    return list.map(item => {
+      const cat = getItemCategory(item);
+      return {
+        ...item,
+        category_id: cat,
+        category_name: cat
+      };
+    });
   },
   saveMenuItem: async (item) => {
     const dbPayload = {

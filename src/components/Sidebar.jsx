@@ -20,8 +20,8 @@ export const Sidebar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           {/* Logo & Restaurant Title */}
           <Link to="/" className="flex items-center gap-3 sm:gap-4 text-decoration-none">
-            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-tr from-slate-900 via-blue-900 to-indigo-700 text-white flex items-center justify-center shadow-md shadow-blue-500/25 shrink-0">
-              <Store className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden shadow-md shadow-blue-500/25 border border-slate-200 shrink-0">
+              <img src="/admin-app-icon.png" alt="Arunachala Bhavan Admin" className="w-full h-full object-cover" />
             </div>
             <div>
               <h1 className="font-black text-slate-950 text-lg sm:text-2xl tracking-tight leading-none mb-1">

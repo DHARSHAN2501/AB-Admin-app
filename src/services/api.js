@@ -147,9 +147,53 @@ export async function getAllCategories() {
   return getCategories();
 }
 
-export async function createCategory(category) { return category; }
-export async function updateCategory(id, category) { return category; }
-export async function deleteCategory(id) { return true; }
+export async function createCategory(category) {
+  try {
+    const payload = {
+      id: String(category.id || `cat-${Date.now()}`),
+      name: String(category.name || ''),
+      description: String(category.tagline || category.description || ''),
+      image_url: String(category.image_url || ''),
+      is_active: true
+    };
+    return await supabaseRequest("categories", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    console.warn('createCategory supabase fallback:', e?.message);
+    return category;
+  }
+}
+
+export async function updateCategory(id, category) {
+  try {
+    const payload = {
+      name: String(category.name || ''),
+      description: String(category.tagline || category.description || ''),
+      image_url: String(category.image_url || ''),
+      is_active: true
+    };
+    return await supabaseRequest(`categories?id=eq.${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    console.warn('updateCategory supabase fallback:', e?.message);
+    return category;
+  }
+}
+
+export async function deleteCategory(id) {
+  try {
+    return await supabaseRequest(`categories?id=eq.${encodeURIComponent(id)}`, {
+      method: "DELETE"
+    });
+  } catch (e) {
+    console.warn('deleteCategory supabase fallback:', e?.message);
+    return true;
+  }
+}
 
 // ==========================================
 // MENU ITEMS AJAX API (Cancellable Reads)

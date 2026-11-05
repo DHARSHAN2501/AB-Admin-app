@@ -23,6 +23,7 @@ export const safeStorage = {
   }
 };
 import { createClient } from '@supabase/supabase-js';
+import { MENU_CATEGORIES } from '../constants/categories';
 
 const REAL_SUPABASE_URL = 'https://thsuvmauyksxiltzutwx.supabase.co';
 const REAL_SUPABASE_KEY = 'sb_publishable_9EfDMt_QKs7oaYPYCp_h-w_to0VizR6';
@@ -39,7 +40,7 @@ export const isSupabaseConfigured = () => true;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, { auth: { storage: safeStorage, persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
 
-const INITIAL_CATEGORIES = [];
+const INITIAL_CATEGORIES = MENU_CATEGORIES;
 
 const INITIAL_MENU_ITEMS = [];
 
@@ -104,21 +105,31 @@ const setStore = (key, data) => {
 
 export const localDB = {
   getCategories: () => getStore('categories', INITIAL_CATEGORIES),
-  saveOrders: (ordersList) => setStore('orders', ordersList || []),
+  saveCategories: (cats) => {
+    setStore('categories', cats || []);
+    return cats || [];
+  },
   saveCategory: (cat) => {
     const list = getStore('categories', INITIAL_CATEGORIES);
-    const idx = list.findIndex(c => c.id === cat.id);
-    const updated = idx >= 0 ? list.map(c => c.id === cat.id ? cat : c) : [...list, { ...cat, id: `cat-${Date.now()}` }];
+    const idx = list.findIndex(c => (cat.id && c.id === cat.id) || (cat.name && c.name?.toLowerCase() === cat.name?.toLowerCase()));
+    const updated = idx >= 0 
+      ? list.map((c, i) => i === idx ? { ...c, ...cat } : c) 
+      : [...list, { ...cat, id: cat.id || `cat-${Date.now()}` }];
     setStore('categories', updated);
     return updated;
   },
   deleteCategory: (id) => {
-    const updated = getStore('categories', INITIAL_CATEGORIES).filter(c => c.id !== id);
+    const list = getStore('categories', INITIAL_CATEGORIES);
+    const updated = list.filter(c => c.id !== id && c.name !== id);
     setStore('categories', updated);
     return updated;
   },
 
   getMenuItems: () => getStore('menu_items', INITIAL_MENU_ITEMS),
+  saveMenuItems: (itemsList) => {
+    setStore('menu_items', itemsList || []);
+    return itemsList || [];
+  },
   saveMenuItem: (item) => {
     const list = getStore('menu_items', INITIAL_MENU_ITEMS);
     const idx = list.findIndex(i => i.id === item.id);

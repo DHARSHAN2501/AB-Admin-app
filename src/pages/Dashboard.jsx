@@ -5,7 +5,6 @@ import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, CartesianGrid, Legend 
 } from 'recharts';
 import { IndianRupee, ShoppingBag, TrendingUp, Truck, XCircle, PieChart as PieIcon, BarChart2, Sparkles, Clock } from 'lucide-react';
-import { MALE_CHEF_IMAGE_BASE64 } from '../assets/male_chef_b64';
 
 export const AdminDashboard = () => {
   const [orders, setOrders] = useState([]);
@@ -149,25 +148,13 @@ export const AdminDashboard = () => {
   return (
     <div className="container-fluid p-0 space-y-5 sm:space-y-6 max-w-7xl mx-auto">
 
-      {/* Executive Overview Hero Banner Card */}
-      <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-blue-950 text-white rounded-3xl p-5 sm:p-6 border border-slate-800/80 shadow-xl flex items-center justify-between gap-4 overflow-hidden relative">
-        <div className="space-y-2 z-10">
-          <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-            Executive Overview <Sparkles className="w-5 h-5 text-cyan-400 fill-cyan-400/30 animate-pulse" />
-          </h2>
-          <p className="text-blue-200/80 text-xs sm:text-sm font-medium max-w-md">
-            Real-time revenue tracking, order analytics & operational performance.
-          </p>
-
-        </div>
-
-        <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 shrink-0 flex items-center justify-center -my-4 -mr-2 sm:-mr-4 z-10">
-          <img 
-            src={MALE_CHEF_IMAGE_BASE64} 
-            alt="Admin Male Chef" 
-            className="w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] hover:scale-105 transition duration-300"
-          />
-        </div>
+      {/* Admin Executive Brand Hero Banner */}
+      <div className="w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-slate-200/80 bg-slate-900">
+        <img 
+          src="/admin-banner.jpg?v=3" 
+          alt="Arunachala Bhavan Admin - Temple of Taste" 
+          className="w-full h-auto max-h-[380px] object-cover block"
+        />
       </div>
 
       {/* Top 5 Key Performance Indicator (KPI) Metric Cards */}
